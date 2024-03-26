@@ -16,6 +16,22 @@ function inGame:newPlayer(x, y, width, height, id)
     }
 end
 
+local radialGradientShader = love.graphics.newShader[[
+    extern number innerRadius;
+    extern number outerRadius;
+    extern vec2 center;
+    extern vec4 colorInner;
+    extern vec4 colorOuter;
+
+    vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
+    {
+        number dist = distance(screen_coords, center);
+        number t = smoothstep(innerRadius, outerRadius, dist);
+        return mix(colorInner, colorOuter, t) * Texel(texture, texture_coords);
+    }
+]]
+
+
 function inGame:enter()
     player1 = self:newPlayer(50, love.graphics.getHeight() / 2 - 25, 20, 70, "Player 1")
     player2 = self:newPlayer(love.graphics.getWidth() - 70, love.graphics.getHeight() / 2 - 25, 20, 70, "Player 2")
@@ -48,7 +64,12 @@ function inGame:enter()
         {player2.x, player2.y + player2.height, 0, 0, 0, 0, 0.8, 1}  -- Bottom left corner, color: dark blue
     }
     player2.mesh = love.graphics.newMesh(vertices2, "fan", "static")
-    
+
+    radialGradientShader:send("innerRadius", love.graphics.getWidth() / 10)  -- Start transition from this radius
+    radialGradientShader:send("outerRadius", love.graphics.getWidth())  -- End transition at this radius
+    radialGradientShader:send("center", {love.graphics.getWidth() / 2, love.graphics.getHeight() / 2})
+    radialGradientShader:send("colorInner", {0.109803922, 0.109803922, 0.109803922, 1})  -- White center
+    radialGradientShader:send("colorOuter", {0, 0, 0, 1})  -- Fades to black
 end
 
 local function updateBall(dt)
@@ -116,6 +137,7 @@ function inGame:update(dt)
     end
 
     player1.y = math.max(0, math.min(player1.y, love.graphics.getHeight() - player1.height))
+    player2.y = math.max(0, math.min(player2.y, love.graphics.getHeight() - player2.height))
     
     -- Update ball position
     updateBall(dt)
@@ -129,6 +151,10 @@ function inGame:update(dt)
 end
 
 function inGame:draw()
+    love.graphics.setShader(radialGradientShader)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+    love.graphics.setShader()
+
     love.graphics.draw(player1.mesh)
     love.graphics.draw(player2.mesh)
 
