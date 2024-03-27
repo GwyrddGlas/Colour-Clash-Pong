@@ -121,6 +121,22 @@ local function checkCollision(ball, paddle)
     return true
 end
 
+local moveProbability = 0.9
+
+local function updateAI(dt)
+    local paddleSpeed = 200 
+    local reactionDelay = 0.1  
+    local errorMargin = 10 
+
+    if math.random() < moveProbability then
+        if gameBall.y < player2.y + player2.height / 2 and player2.y > 0 then
+            player2.y = player2.y - paddleSpeed * dt
+        elseif gameBall.y > player2.y + player2.height / 2 and player2.y < love.graphics.getHeight() - player2.height then
+            player2.y = player2.y + paddleSpeed * dt
+        end
+    end
+end
+
 function inGame:update(dt)
     if love.keyboard.isDown('w') then
         player1.y = player1.y - 300 * dt  
@@ -143,6 +159,9 @@ function inGame:update(dt)
     updateBall(dt)
     updatePaddleMesh(player1, {1, 0, 0, 1}, {1, 0.5, 0.5, 1})  -- From red to light red for Player 1
     updatePaddleMesh(player2, {0, 0, 1, 1}, {0.5, 0.5, 1, 1})  -- From blue to light blue for Player 2
+
+    -- Update AI
+    updateAI(dt)
 
     if checkCollision(gameBall, player1) or checkCollision(gameBall, player2) then
         gameBall.dx = -gameBall.dx         
