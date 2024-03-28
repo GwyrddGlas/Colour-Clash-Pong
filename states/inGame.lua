@@ -77,6 +77,10 @@ function inGame:enter()
     soundEffects["wall"] = love.audio.newSource("sounds/wall.mp3", "static")
     soundEffects["paddle"] = love.audio.newSource("sounds/paddle.mp3", "static")
     soundEffects["score"] = love.audio.newSource("sounds/score.mp3", "static")
+
+    self.isPaused = false
+    local joysticks = love.joystick.getJoysticks()
+	self.joystick = joysticks[1]
 end
 
 local function updateBall(dt)
@@ -155,11 +159,23 @@ local function updateAI(dt)
 end
 
 function inGame:update(dt)
+    if self.isPaused then 
+        return
+    end
+
     if love.keyboard.isDown('w') then
         player1.y = player1.y - 300 * dt  
     end
     if love.keyboard.isDown('s') then
         player1.y = player1.y + 300 * dt  
+    end
+
+    if self.joystick then
+        if self.joystick:isGamepadDown('dpup') then
+            player1.y = player1.y - 300 * dt
+        elseif self.joystick:isGamepadDown('dpdown') then
+            player1.y = player1.y + 300 * dt
+        end
     end
 
     player1.y = math.max(0, math.min(player1.y, love.graphics.getHeight() - player1.height))
@@ -176,6 +192,12 @@ function inGame:update(dt)
     if checkCollision(gameBall, player1) or checkCollision(gameBall, player2) then
         gameBall.dx = -gameBall.dx         
         gameBall.dy = gameBall.dy + math.random(-10, 10)
+    end
+end
+
+function inGame:keypressed(key)
+    if key == 'escape' then
+        self.isPaused = not self.isPaused
     end
 end
 
@@ -212,6 +234,16 @@ function inGame:draw()
 
     love.graphics.print(scoreText1, centerY - scoreOffsetX - scoreWidth1, scorePosY)
     love.graphics.print(scoreText2, centerY + scoreOffsetX, scorePosY)
+
+    if self.isPaused then
+        local pauseMessage = "Game Paused\nPress 'Escape' to Resume"
+        local screenWidth = love.graphics.getWidth()
+        local screenHeight = love.graphics.getHeight()
+        local messageWidth = self.scoreFont:getWidth(pauseMessage)
+        local messageHeight = self.scoreFont:getHeight(pauseMessage)
+
+        love.graphics.printf(pauseMessage, (screenWidth/2 - messageWidth), (screenHeight/2 - messageHeight), screenWidth, 'center')
+    end
 end
 
 return inGame
