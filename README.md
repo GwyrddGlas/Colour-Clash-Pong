@@ -4,11 +4,11 @@ Blending the beloved simplicity of the classic with sleek, modern visuals. Perfe
 
 ## Key Features:
 
-- **Two-Player Mode**: Challenge a friend in a head-to-head battle. Player 1 uses the `W` and `S` keys to move their paddle up and down, while Player 2 relies on the Up and Down arrow keys for control.
+- **Two-Player Mode**: Challenge an AI in a head-to-head battle. Player 1 uses the `W` and `S` keys to move their paddle up and down.
 
 - **Visual Enhancements**: Enjoy a modernized look with gradient paddles, a dynamic background featuring a radial gradient that adds depth to your gaming experience.
 
-- **Accessible Gameplay**: Easy to pick up but hard to master, this version retains the straightforward and addictive gameplay of the original Pong, making it suitable for players of all ages and skill levels.
+- **Accessible Gameplay**: Easy to pick up but hard to master, this version retains the straightforward and addictive gameplay of the original Pong, but with a challenging AI to battle.
 
 ## Preview
 [![image.png](https://i.postimg.cc/fL9n8pSk/image.png)](https://postimg.cc/47sSd85T)

@@ -4,6 +4,8 @@ local player1
 local player2
 local gameBall
 
+local soundEffects = {}
+
 function inGame:newPlayer(x, y, width, height, id)
     return {
         x = x,
@@ -30,7 +32,6 @@ local radialGradientShader = love.graphics.newShader[[
         return mix(colorInner, colorOuter, t) * Texel(texture, texture_coords);
     }
 ]]
-
 
 function inGame:enter()
     player1 = self:newPlayer(50, love.graphics.getHeight() / 2 - 25, 20, 70, "Player 1")
@@ -70,6 +71,10 @@ function inGame:enter()
     radialGradientShader:send("center", {love.graphics.getWidth() / 2, love.graphics.getHeight() / 2})
     radialGradientShader:send("colorInner", {0.109803922, 0.109803922, 0.109803922, 1})  -- White center
     radialGradientShader:send("colorOuter", {0, 0, 0, 1})  -- Fades to black
+
+    soundEffects["wall"] = love.audio.newSource("sounds/wall.mp3", "static")
+    soundEffects["paddle"] = love.audio.newSource("sounds/paddle.mp3", "static")
+    soundEffects["score"] = love.audio.newSource("sounds/score.mp3", "static")
 end
 
 local function updateBall(dt)
@@ -79,23 +84,27 @@ local function updateBall(dt)
     if gameBall.y <= 0 then 
         gameBall.y = 0  
         gameBall.dy = -gameBall.dy 
+        soundEffects["wall"]:play()
     elseif gameBall.y >= love.graphics.getHeight() - gameBall.size then  
         gameBall.y = love.graphics.getHeight() - gameBall.size  
         gameBall.dy = -gameBall.dy 
+        soundEffects["wall"]:play()
     end
-
+    
     if gameBall.x <= 0 then  
         gameBall.x = love.graphics.getWidth() / 2
         gameBall.y = love.graphics.getHeight() / 2
         gameBall.dx = -gameBall.dx
-
+        
         player2.score = player2.score + 1
+        soundEffects["score"]:play()
     elseif gameBall.x >= love.graphics.getWidth() - gameBall.size then 
         gameBall.x = love.graphics.getWidth() / 2
         gameBall.y = love.graphics.getHeight() / 2
         gameBall.dx = -gameBall.dx
         
         player1.score = player1.score + 1
+        soundEffects["score"]:play()
     end
 end
 
@@ -122,7 +131,6 @@ local function checkCollision(ball, paddle)
 end
 
 local moveProbability = 0.9
-
 local function updateAI(dt)
     local paddleSpeed = 200 
     local reactionDelay = 0.1  
@@ -143,13 +151,6 @@ function inGame:update(dt)
     end
     if love.keyboard.isDown('s') then
         player1.y = player1.y + 300 * dt  
-    end
-
-    if love.keyboard.isDown('up') then
-        player2.y = player2.y - 300 * dt  
-    end
-    if love.keyboard.isDown('down') then
-        player2.y = player2.y + 300 * dt  
     end
 
     player1.y = math.max(0, math.min(player1.y, love.graphics.getHeight() - player1.height))
