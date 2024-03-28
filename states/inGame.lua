@@ -3,6 +3,8 @@ local inGame = {}
 local player1
 local player2
 local gameBall
+local initialBallSpeedX = 200 
+local initialBallSpeedY = 120 
 
 local soundEffects = {}
 
@@ -40,8 +42,8 @@ function inGame:enter()
         x = love.graphics.getWidth() / 2,
         y = love.graphics.getHeight() / 2,
         size = 10,
-        dx = 200,  
-        dy = 120
+        dx = initialBallSpeedX,  
+        dy = initialBallSpeedY
     }
 
     local scoreFontSize = 30
@@ -90,18 +92,20 @@ local function updateBall(dt)
         gameBall.dy = -gameBall.dy 
         soundEffects["wall"]:play()
     end
-    
+
     if gameBall.x <= 0 then  
         gameBall.x = love.graphics.getWidth() / 2
         gameBall.y = love.graphics.getHeight() / 2
-        gameBall.dx = -gameBall.dx
-        
+        gameBall.dx = initialBallSpeedX  -- Reset to initial speed
+        gameBall.dy = (math.random(2) == 1 and -1 or 1) * initialBallSpeedY  -- Reset to initial speed with random direction
+
         player2.score = player2.score + 1
         soundEffects["score"]:play()
     elseif gameBall.x >= love.graphics.getWidth() - gameBall.size then 
         gameBall.x = love.graphics.getWidth() / 2
         gameBall.y = love.graphics.getHeight() / 2
-        gameBall.dx = -gameBall.dx
+        gameBall.dx = -initialBallSpeedX  -- Reset to initial speed
+        gameBall.dy = (math.random(2) == 1 and -1 or 1) * initialBallSpeedY  -- Reset to initial speed with random direction
         
         player1.score = player1.score + 1
         soundEffects["score"]:play()
@@ -118,6 +122,7 @@ local function updatePaddleMesh(paddle, colorTop, colorBottom)
     paddle.mesh:setVertices(vertices)
 end
 
+local speedIncreaseFactor = 1.05
 local function checkCollision(ball, paddle)
     if ball.x + ball.size < paddle.x or ball.x > paddle.x + paddle.width then
         return false
@@ -126,6 +131,10 @@ local function checkCollision(ball, paddle)
     if ball.y + ball.size < paddle.y or ball.y > paddle.y + paddle.height then
         return false
     end
+
+    ball.dx = ball.dx * speedIncreaseFactor
+    ball.dy = ball.dy * speedIncreaseFactor
+    soundEffects["paddle"]:play()
 
     return true
 end

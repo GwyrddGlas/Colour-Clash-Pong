@@ -24,13 +24,6 @@ local function addMenuButtons()
             GameStateManager:setState(inGame)
         end
     ))
-    
-    table.insert(buttons, newButton(
-        "Settings",
-        function()
-            print("Going to settings...")
-        end
-    ))
 
     table.insert(buttons, newButton(
         "Exit",
